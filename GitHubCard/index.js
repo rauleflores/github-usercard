@@ -6,10 +6,16 @@
 const cards = document.querySelector('.cards');
 
 
-axios.get('https://api.github.com/users/rauleflores').then( (response) =>{
+axios.get('https://api.github.com/users/rauleflores')
+.then( response =>{
     const newUserCard = gitHubCardComponentCreator(response.data);
     cards.appendChild(newUserCard)
-}).catch( error => { console.log(error) })
+    return axios.get('https://api.github.com/users/rauleflores');
+})
+.then( response => {
+  cards.appendChild(getFollowers(response.data.followers_url))
+})
+.catch( error => { console.log(error) })
 
 
 
@@ -19,11 +25,9 @@ axios.get('https://api.github.com/users/rauleflores').then( (response) =>{
 
    Skip to Step 3.
 */
-
 /* Step 4: Pass the data received from Github into your function, 
            create a new component and add it to the DOM as a child of .cards
 */
-
 /* Step 5: Now that you have your own card getting added to the DOM, either 
           follow this link in your browser https://api.github.com/users/<Your github name>/followers 
           , manually find some other users' github handles, or use the list found 
@@ -36,24 +40,27 @@ axios.get('https://api.github.com/users/rauleflores').then( (response) =>{
 
 
 ////Programmatically (get followers => create a card for each => append new card(s) to document )
-// axios.get('https://api.github.com/users/rauleflores/followers')
-// .then( response => {
-//   followersData = response.data.map( user => user.login)
-//   followersData.forEach( user =>{
-//     axios.get(`https://api.github.com/users/${user}`).then( response =>{
-//         const newUserCard = gitHubCardComponentCreator(response.data);
-//         cards.appendChild(newUserCard)
-//     })
-//   })
-// }).catch( error => {
-//   console.log(`Something went wrong! ${error}`)
-// })
+function getFollowers(followers_url) {
+  axios.get(followers_url)
+  .then( response => {
+    console.log(response)
+    followersData = response.data.map( user => user.login)
+    followersData.forEach( user =>{
+      axios.get(`https://api.github.com/users/${user}`).then( response =>{
+          const newUserCard = gitHubCardComponentCreator(response.data);
+          cards.appendChild(newUserCard)
+      })
+    })
+  }).catch( error => {
+    console.log(`Something went wrong: ${error}`)
+  })
+}
 
 
-
+//Extra hard-coded users (I ony had 2 followers)
 let followersArray = [
-  'hooliocoolio',
-  'venegasgabby76',
+  // 'hooliocoolio',
+  // 'venegasgabby76',
   'web25Lucius',
   'tonyso88',
   'bigknell',
