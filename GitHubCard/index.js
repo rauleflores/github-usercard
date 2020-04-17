@@ -8,21 +8,21 @@ const cards = document.querySelector('.cards');
 
 axios.get('https://api.github.com/users/rauleflores')
 .then( response =>{
-    const newUserCard = gitHubCardComponentCreator(response.data);
-    cards.appendChild(newUserCard)
-    return axios.get('https://api.github.com/users/rauleflores');
+  const userCard = gitHubCardComponentCreator(response.data);
+  cards.appendChild(userCard)
+  return axios.get('https://api.github.com/users/rauleflores');
 })
 .then( response => {
-  cards.appendChild(getFollowers(response.data.followers_url))
+  const followersCard = getFollowers(response.data.followers_url);
+  cards.appendChild(followersCard)
 })
-.catch( error => { console.log(error) })
+.catch( error => { console.log(`Something went wrong: ${error}`) })
 
 
 
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
    data in order to use it to build your component function 
-
    Skip to Step 3.
 */
 /* Step 4: Pass the data received from Github into your function, 
@@ -43,26 +43,19 @@ axios.get('https://api.github.com/users/rauleflores')
 function getFollowers(followers_url) {
   axios.get(followers_url)
   .then( response => {
-    console.log(response)
     followersData = response.data.map( user => user.login)
     followersData.forEach( user =>{
       axios.get(`https://api.github.com/users/${user}`).then( response =>{
           const newUserCard = gitHubCardComponentCreator(response.data);
           cards.appendChild(newUserCard)
-      })
+      }).catch( error => { console.log(`Something went wrong: ${error}`) })
     })
-  }).catch( error => {
-    console.log(`Something went wrong: ${error}`)
-  })
+  }).catch( error => { console.log(`Something went wrong: ${error}`) })
 }
 
 
-//Extra hard-coded users (I ony had 2 followers)
+//Extra hard-coded users just cause :)
 let followersArray = [
-  // 'hooliocoolio',
-  // 'venegasgabby76',
-  'web25Lucius',
-  'tonyso88',
   'bigknell',
   'tetondan',
   'dustinmyers',
@@ -71,15 +64,15 @@ let followersArray = [
 ];
 
 followersArray.forEach( user => {
-  axios.get(`https://api.github.com/users/${user}`).then( (response) =>{
+  axios.get(`https://api.github.com/users/${user}`)
+    .then( (response) =>{
       const newUserCard = gitHubCardComponentCreator(response.data);
       cards.appendChild(newUserCard)
-  }).catch( error => { console.log(error) })
+  }).catch( error => { console.log(`Something went wrong: ${error}`) })
 })
 
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
-
 <div class="card">
   <img src={image url of user} />
   <div class="card-info">
@@ -94,7 +87,6 @@ followersArray.forEach( user => {
     <p>Bio: {users bio}</p>
   </div>
 </div>
-
 */
 
 function gitHubCardComponentCreator( obj ){
